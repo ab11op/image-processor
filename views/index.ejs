@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🖼️ Sharp Image Processor</h1>
+      <p class="subtitle">Professional image processing with Node.js & Sharp.js</p>
+    </header>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <div class="upload-box">
+        <input type="file" id="imageInput" accept="image/*" class="file-input">
+        <label for="imageInput" class="file-label">
+          <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span>Choose Image or Drag & Drop</span>
+        </label>
+        <button onclick="uploadImage()" class="btn btn-primary">Upload Image</button>
+      </div>
+    </div>
+
+    <!-- Original Image Preview -->
+    <div id="imagePreview" class="preview-section hidden">
+      <h3>📸 Original Image</h3>
+      <img id="originalImage" alt="Original" class="preview-image">
+      <div id="imageInfo" class="image-info"></div>
+    </div>
+
+    <!-- Operations Section -->
+    <div id="operations" class="operations-section hidden">
+      <h2>🎨 Image Operations</h2>
+      
+      <div class="operation-grid">
+        <!-- Resize -->
+        <div class="operation-card">
+          <h3>📏 Resize</h3>
+          <div class="form-group">
+            <input type="number" id="resizeWidth" placeholder="Width (px)" value="800" class="form-input">
+            <input type="number" id="resizeHeight" placeholder="Height (px)" value="600" class="form-input">
+            <select id="resizeFit" class="form-select">
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="fill">Fill</option>
+              <option value="inside">Inside</option>
+              <option value="outside">Outside</option>
+            </select>
+          </div>
+          <button onclick="processImage('resize')" class="btn btn-secondary">Apply Resize</button>
+        </div>
+
+        <!-- Crop -->
+        <div class="operation-card">
+          <h3>✂️ Crop</h3>
+          <div class="form-group">
+            <input type="number" id="cropLeft" placeholder="Left" value="0" class="form-input">
+            <input type="number" id="cropTop" placeholder="Top" value="0" class="form-input">
+            <input type="number" id="cropWidth" placeholder="Width" value="400" class="form-input">
+            <input type="number" id="cropHeight" placeholder="Height" value="400" class="form-input">
+          </div>
+          <button onclick="processImage('crop')" class="btn btn-secondary">Apply Crop</button>
+        </div>
+
+        <!-- Rotate -->
+        <div class="operation-card">
+          <h3>🔄 Rotate</h3>
+          <div class="form-group">
+            <input type="number" id="rotateAngle" placeholder="Angle (degrees)" value="90" class="form-input">
+            <div class="quick-buttons">
+              <button onclick="setRotate(90)" class="btn-small">90°</button>
+              <button onclick="setRotate(180)" class="btn-small">180°</button>
+              <button onclick="setRotate(270)" class="btn-small">270°</button>
+            </div>
+          </div>
+          <button onclick="processImage('rotate')" class="btn btn-secondary">Apply Rotation</button>
+        </div>
+
+        <!-- Flip -->
+        <div class="operation-card">
+          <h3>↔️ Flip</h3>
+          <div class="form-group">
+            <select id="flipDirection" class="form-select">
+              <option value="horizontal">Horizontal</option>
+              <option value="vertical">Vertical</option>
+              <option value="both">Both</option>
+            </select>
+          </div>
+          <button onclick="processImage('flip')" class="btn btn-secondary">Apply Flip</button>
+        </div>
+
+        <!-- Blur -->
+        <div class="operation-card">
+          <h3>🌫️ Blur</h3>
+          <div class="form-group">
+            <label>Intensity: <span id="blurValue">5</span></label>
+            <input type="range" id="blurSigma" min="0.3" max="20" step="0.1" value="5" 
+                   oninput="document.getElementById('blurValue').textContent=this.value" class="form-range">
+          </div>
+          <button onclick="processImage('blur')" class="btn btn-secondary">Apply Blur</button>
+        </div>
+
+        <!-- Sharpen -->
+        <div class="operation-card">
+          <h3>✨ Sharpen</h3>
+          <div class="form-group">
+            <label>Intensity: <span id="sharpenValue">1</span></label>
+            <input type="range" id="sharpenSigma" min="0.1" max="5" step="0.1" value="1" 
+                   oninput="document.getElementById('sharpenValue').textContent=this.value" class="form-range">
+          </div>
+          <button onclick="processImage('sharpen')" class="btn btn-secondary">Apply Sharpen</button>
+        </div>
+
+        <!-- Effects -->
+        <div class="operation-card">
+          <h3>🎭 Color Effects</h3>
+          <div class="form-group">
+            <label>Brightness: <span id="brightnessValue">1</span></label>
+            <input type="range" id="brightness" min="0" max="2" step="0.1" value="1" 
+                   oninput="document.getElementById('brightnessValue').textContent=this.value" class="form-range">
+            
+            <label>Saturation: <span id="saturationValue">1</span></label>
+            <input type="range" id="saturation" min="0" max="2" step="0.1" value="1" 
+                   oninput="document.getElementById('saturationValue').textContent=this.value" class="form-range">
+            
+            <label>Contrast: <span id="contrastValue">1</span></label>
+            <input type="range" id="contrast" min="0" max="2" step="0.1" value="1" 
+                   oninput="document.getElementById('contrastValue').textContent=this.value" class="form-range">
+          </div>
+          <button onclick="processImage('effects')" class="btn btn-secondary">Apply Effects</button>
+        </div>
+
+        <!-- Tint -->
+        <div class="operation-card">
+          <h3>🎨 Tint Color</h3>
+          <div class="form-group">
+            <input type="color" id="tintColor" value="#0000FF" class="form-color">
+            <input type="text" id="tintColorText" value="#0000FF" class="form-input" 
+                   oninput="document.getElementById('tintColor').value=this.value">
+          </div>
+          <button onclick="processImage('tint')" class="btn btn-secondary">Apply Tint</button>
+        </div>
+
+        <!-- Convert Format -->
+        <div class="operation-card">
+          <h3>💾 Convert Format</h3>
+          <div class="form-group">
+            <select id="convertFormat" class="form-select">
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+              <option value="tiff">TIFF</option>
+              <option value="gif">GIF</option>
+            </select>
+            <label>Quality: <span id="qualityValue">80</span>%</label>
+            <input type="range" id="convertQuality" min="1" max="100" value="80" 
+                   oninput="document.getElementById('qualityValue').textContent=this.value" class="form-range">
+          </div>
+          <button onclick="processImage('convert')" class="btn btn-secondary">Convert Format</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="operation-card quick-actions">
+          <h3>⚡ Quick Actions</h3>
+          <div class="button-grid">
+            <button onclick="processImage('grayscale')" class="btn btn-quick">🎭 Grayscale</button>
+            <button onclick="processImage('optimize')" class="btn btn-quick">🚀 Optimize</button>
+            <button onclick="processImage('metadata')" class="btn btn-quick">ℹ️ Metadata</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result" class="result-section hidden">
+      <h2>✅ Processed Image</h2>
+      <div class="result-container">
+        <img id="processedImage" alt="Processed" class="preview-image">
+        <div id="metadata" class="metadata-box"></div>
+      </div>
+      <button onclick="downloadImage()" class="btn btn-primary">⬇️ Download Image</button>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processing your image...</p>
+    </div>
+  </div>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

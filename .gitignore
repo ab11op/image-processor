@@ -1,0 +1,8 @@
+node_modules/
+uploads/*
+!uploads/.gitkeep
+processed/*
+!processed/.gitkeep
+.env
+.DS_Store
+*.log
