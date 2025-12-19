@@ -17,7 +17,11 @@ A professional image processing web application built with Node.js, Express, Sha
 
 ## Installation
 
-1. Clone or download this project
+1. Clone or download this project 
+```bash
+git clone https://github.com/ab11op/image-processor.git
+```
+
 2. Install dependencies:
 ```bash
 npm install
@@ -76,4 +80,4 @@ MIT
 
 ## Author
 
-Your Name
+Akash
